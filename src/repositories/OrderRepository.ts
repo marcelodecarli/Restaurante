@@ -1,12 +1,13 @@
 import { AppDataSource } from "../data-source";
 import { Order } from "../models/Order";
+import { User } from "../models/User"
 
 export class OrderRepository {
   private orderRepository = AppDataSource.getRepository(Order);
 
   async createOrder(userId: number, status: string) {
     const order = new Order();
-    order.user = { id: userId } as any; // Associar o usuário
+    order.user = { id: userId } as User; // Associar o usuário
     order.status = status;
     return await this.orderRepository.save(order);
   }
