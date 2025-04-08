@@ -1,26 +1,30 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, BeforeInsert } from "typeorm";
+// src/models/User.ts
+import {
+  Entity, PrimaryGeneratedColumn, Column, OneToMany,
+  BeforeInsert, BeforeUpdate
+} from "typeorm";
+import bcrypt from "bcryptjs";
 import { Order } from "./Order";
 import { FavoriteDishes } from "./FavoriteDishes";
-import bcrypt from "bcryptjs";
 
 @Entity()
 export class User {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ type: "varchar", length: 100, nullable: false })
-  name: string;
+  @Column({ length: 100 })
+  name!: string;
 
-  @Column({ unique: true, type: "varchar", length: 255, nullable: false })
-  email: string;
+  @Column({ unique: true })
+  email!: string;
 
-  @Column({ type: "varchar", length: 255, nullable: false })
-  password: string;
+  @Column()
+  password!: string;
 
-  @Column({ type: "varchar", length: 15, nullable: false, unique: true })
-  phone: string;
+  @Column({ type: "varchar", length: 15 })
+  phone!: string;
 
-  @Column({ default: "costumer", type: "enum", enum: ['costumer', 'admin'] })
+  @Column({ default: "customer" })
   role!: string;
 
   @OneToMany (() => FavoriteDishes, (favoriteDish) => favoriteDish.user)
@@ -29,15 +33,16 @@ export class User {
   @OneToMany(() => Order, (order) => order.user)
   orders!: Order[];
 
-  constructor(name: string, email: string, password: string, phone: string){
-    this.name = name
-    this.email = email
-    this.password = password
-    this.phone = phone
+  constructor(name: string, email: string, password: string, phone: string) {
+    this.name = name;
+    this.email = email;
+    this.password = password;
+    this.phone = phone;
   }
 
   @BeforeInsert()
-  async hashPassword(){
+  @BeforeUpdate()
+  async hashPassword() {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
   }
